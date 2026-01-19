@@ -2,9 +2,11 @@
 # SIASIC-Santander Backend - Configuración
 # ═══════════════════════════════════════════════════════════════════════════
 
+import os
 from pydantic_settings import BaseSettings
 from typing import List
 from pathlib import Path
+import json
 
 
 class Settings(BaseSettings):
@@ -15,17 +17,29 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     APP_DESCRIPTION: str = "Sistema de Información y Análisis Sísmico de Santander"
     
-    # Server
-    HOST: str = "0.0.0.0"
-    PORT: int = 8001
-    DEBUG: bool = True
+    # Server - CRÍTICO: Railway usa variable PORT, no 8001
+    HOST: str = os.getenv("HOST", "0.0.0.0")
+    PORT: int = int(os.getenv("PORT", 8001))  # Railway inyecta PORT automáticamente
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
     
-    # CORS - Permitir Next.js frontend
+    # CORS - IMPORTANTE: Agregar Vercel frontend
     CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8000",
+        "http://localhost:3000",            # Next.js local
+        "http://127.0.0.1:3000",           # Next.js local alternativo
+        "http://localhost:8000",           # Posible frontend alternativo
+        "https://siasic-santander.vercel.app",  # TU FRONTEND EN VERCEL
+        "https://siasic-santander-production.vercel.app",  # Por si acaso
+        "http://localhost:8001",           # Backend local (por si pruebas)
     ]
+    
+    # Si Railway pasa CORS_ORIGINS como variable de entorno
+    if os.getenv("CORS_ORIGINS"):
+        try:
+            # Intenta parsear como JSON
+            CORS_ORIGINS = json.loads(os.getenv("CORS_ORIGINS"))
+        except:
+            # O como string separado por comas
+            CORS_ORIGINS = os.getenv("CORS_ORIGINS").split(",")
     
     # ═══════════════════════════════════════════════════════════════════════
     # RUTA DE DATOS - Archivo CSV con los sismos
@@ -38,6 +52,8 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        # Esto permite que pydantic lea las variables de entorno
+        env_file_encoding = 'utf-8'
 
 
 # Paleta de colores SIASIC (extraída del dashboard)
@@ -96,3 +112,19 @@ class Constants:
 settings = Settings()
 colors = Colors()
 constants = Constants()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LOG DE CONFIGURACIÓN (para debugging)
+# ═══════════════════════════════════════════════════════════════════════════
+if __name__ == "__main__":
+    print("=" * 70)
+    print("CONFIGURACIÓN SIASIC-SANTANDER")
+    print("=" * 70)
+    print(f"APP_NAME: {settings.APP_NAME}")
+    print(f"HOST: {settings.HOST}")
+    print(f"PORT: {settings.PORT} (de entorno: {os.getenv('PORT')})")
+    print(f"DEBUG: {settings.DEBUG}")
+    print(f"CORS_ORIGINS: {settings.CORS_ORIGINS}")
+    print(f"DATA_PATH: {settings.DATA_PATH}")
+    print("=" * 70)

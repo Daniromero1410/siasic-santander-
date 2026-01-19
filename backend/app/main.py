@@ -176,18 +176,21 @@ async def global_exception_handler(request, exc):
 if __name__ == "__main__":
     import uvicorn
     
+      # Usar configuración desde settings
+   # Usar configuración desde settings
     print(f"""
     ╔═══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
     ║   🌋 SIASIC-SANTANDER API                                             ║
     ║   Sistema de Información y Análisis Sísmico                           ║
     ║                                                                       ║
-    ║   📍 http://{settings.HOST}:{settings.PORT}                                        ║
-    ║   📚 Docs: http://{settings.HOST}:{settings.PORT}/docs                             ║
+    ║   📍 http://{settings.HOST}:{settings.PORT}                          ║
+    ║   📚 Docs: http://{settings.HOST}:{settings.PORT}/docs               ║
+    ║   🚀 Environment: {'PRODUCTION' if not settings.DEBUG else 'DEVELOPMENT'} ║
+    ║   🔧 CORS Origins: {settings.CORS_ORIGINS}                           ║
     ║                                                                       ║
     ╚═══════════════════════════════════════════════════════════════════════╝
     """)
-    
     uvicorn.run(
         "app.main:app",
         host=settings.HOST,
