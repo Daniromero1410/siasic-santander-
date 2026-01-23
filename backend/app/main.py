@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.config import settings, colors
+from app.config import settings, colors, get_cors_origins, get_cors_origin_regex
 from app.routers import sismos_router, simulador_router, export_router
 
 
@@ -68,7 +68,8 @@ Colombia, con énfasis especial en el **Nido Sísmico de Bucaramanga**.
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=get_cors_origins(),
+    allow_origin_regex=get_cors_origin_regex(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

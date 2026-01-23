@@ -21,15 +21,6 @@ class Settings(BaseSettings):
     PORT: int = int(os.getenv("PORT", "8001"))
     DEBUG: bool = False
     
-    # CORS - Permitir Next.js frontend
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8000",
-        "https://siasic-santander.vercel.app",
-        "https://*.vercel.app",
-    ]
-    
     # ═══════════════════════════════════════════════════════════════════════
     # RUTA DE DATOS - Archivo CSV con los sismos
     # ═══════════════════════════════════════════════════════════════════════
@@ -41,6 +32,22 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+
+
+# CORS Configuration - Definido fuera de Settings para evitar problemas con pydantic
+def get_cors_origins() -> List[str]:
+    """Retorna la lista de orígenes permitidos para CORS"""
+    return [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "https://siasic-santander.vercel.app",
+    ]
+
+
+def get_cors_origin_regex() -> str:
+    """Retorna el patrón regex para aceptar todos los subdominios de Vercel"""
+    return r"https://.*\.vercel\.app"
 
 
 # Paleta de colores SIASIC (extraída del dashboard)
